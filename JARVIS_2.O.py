@@ -1,5 +1,4 @@
-||LIBRARY USED||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
+from PIL import Image
 #-----------------------------------------------------------------------BATTRY AND RAM-----------------------------------------------------------------------------------------------------#
 import psutil
 #------------------------------------------------------------------------OPENING CAMERA----------------------------------------------------------------------------------------------------#
@@ -42,7 +41,7 @@ print("\033[31m    \|**| \|**|\|_______/**/ /\ **\    \|*******|\**_______\     
 #||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\
 
 #||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||NOVA|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#
-API_KEY = ""  # apni Gemini API key
+API_KEY = "AIzaSyAptkqFIcfq6STuyGFIgEguopX5i880w5s"  # apni Gemini API key
 genai.configure(api_key=API_KEY)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -182,8 +181,21 @@ if access_granted:
             user_text = recognizer.recognize_google(audio)
             print(random.choice(["\033[31m You said:\033[0m","\033[32m You said:\033[0m","\033[33m You said:\033[0m","\033[34m You said:\033[0m","\033[35m You said:\033[0m","\033[36m You said:\033[0m","\033[37m You said:\033[0m"]), user_text)
             MEMORY["COMMAND"]=user_text
+            if "image" in user_text.lower():
+                jarvis_speak("Enter Image Full Path")
+                try:
+                    i=input(random.choice(["\033[31mEnter image path\033[0m","\033[32mEnter image path\033[0m","\033[33mEnter image path\033[0m","\033[34mEnter image path\033[0m","\033[35mEnter image path\033[0m","\033[36mEnter image path\033[0m","\033[37mEnter image path\033[0m"]))
+                    img = Image.open(i).getexif()
+                    if not img:
+                        print(random.choice(["\033[31mThis image Could be AI-generated\033[0m","\033[32mThis image Could be AI-generated\033[0m","\033[33mThis image Could be AI-generated\033[0m","\033[34mThis image Could be AI-generated\033[0m","\033[35mThis image Could be AI-generated\033[0m","\033[36mThis image Could be AI-generated\033[0m","\033[37mThis image Could be AI-generated\033[0m"]))
+                        jarvis_speak("This image Could be AI-generated")
+                    else:
+                        print(random.choice(["\033[31m✅ Metadata found → Likely real photo\033[0m","\033[32m✅ Metadata found → Likely real photo\033[0m","\033[33m✅ Metadata found → Likely real photo\033[0m","\033[34m✅ Metadata found → Likely real photo\033[0m","\033[35m✅ Metadata found → Likely real photo\033[0m","\033[36m✅ Metadata found → Likely real photo\033[0m","\033[37m✅ Metadata found → Likely real photo\033[0m"]))
+                        jarvis_speak("This image could be Real")
+                except Exception as e:
+                    jarvis_speak(f"{e}")
 #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||TRICKS||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#
-            if "tricks" in user_text.lower():
+            elif "tricks" in user_text.lower():
                 print(random.choice([ "\033[31mSIR: Please tell me which trick you want — birthday formula or convert, SIR.\033[0m","\033[32mSIR: Kindly specify the trick you want, SIR — birthday formula or convert?\033[32m","\033[33mSIR: Which trick should I use, SIR? Birthday formula or convert?\033[0m","\033[34mSIR: Please choose your trick, SIR — birthday formula or convert.\033[0m","\033[35mSIR: I need to know which trick you want, SIR — birthday formula or convert.\033[0m","\033[36mSIR: Tell me the trick you prefer, SIR — birthday formula or convert?\033[0m","\033[37mSIR: Which trick do you want me to perform, SIR — birthday formula or convert?\033[0m"]))
                 jarvis_speak(random.choice(["SIR: Please tell me which trick you want — birthday formula or convert, SIR.","SIR: Kindly specify the trick you want, SIR — birthday formula or convert?","SIR: Which trick should I use, SIR? Birthday formula or convert?","SIR: Please choose your trick, SIR — birthday formula or convert.","SIR: I need to know which trick you want, SIR — birthday formula or convert.","SIR: Tell me the trick you prefer, SIR — birthday formula or convert?","SIR: Which trick do you want me to perform, SIR — birthday formula or convert?"]))
                 try:
@@ -859,22 +871,81 @@ if access_granted:
                         c_name = input("Enter Column Name: ")
                         MEMORY['C NAME']=c_name
                         c_values = input(f"Enter values for {c_name}, separated by commas: ").split(",")
+                        c_values = [v.strip() for v in c_values]
                         MEMORY['C VALUES']=c_values
+                        if all(v.isdigit() for v in c_values):
+                            c_values = [int(v) for v in c_values]
                         c[c_name] = c_values
 
-                        df = pd.DataFrame(c)
-                        action = input("Enter what you want (savefile/graph/dataframe): ").lower()
-                        MEMORY['ACTION']=action
-                        if action == "dataframe":
-                            print(df)
+                    df = pd.DataFrame(c)
+                    jarvis_speak("Showing your database")
+                    print(df)
+                    action = input(random.choice(["\033[31mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[32mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[33mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[34mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[35mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[36mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[37mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m"])).lower()
+                    MEMORY['ACTION']=action
+                    if action == "savefile":
+                        filename = input("Enter file Name (with .csv): ")
+                        df.to_csv(filename, index=False)
+                        print(f"File '{filename}' saved successfully")
 
-                        elif action == "savefile":
-                            filename = input("Enter file Name (with .csv): ")
-                            df.to_csv(filename, index=False)
-                            print(f"File {filename} saved successfully")
-                        
-                        else:
-                            jarvis_speak("Module Not found")
+                    elif action == "dataframe":
+                        print("\nDataFrame:")
+                        print(df)
+
+                    elif action == "melt":
+                        id_vars = input("Enter id_vars columns separated by commas: ").split(",")
+                        id_vars = [v.strip() for v in id_vars]
+                        value_vars = input("Enter value_vars columns separated by commas: ").split(",")
+                        value_vars = [v.strip() for v in value_vars]
+                        var_name = input("Enter var_name: ").strip()
+                        value_name = input("Enter value_name: ").strip()
+                        melted_df = pd.melt(df, id_vars=id_vars, value_vars=value_vars, var_name=var_name, value_name=value_name)
+                        print("\nMelted DataFrame:")
+                        jarvis_speak("Showing your melted database")
+                        print(melted_df)
+
+                    elif action == "pivot":
+                        index_col = input("Enter column for Index: ").strip()
+                        columns_col = input("Enter column for Columns: ").strip()
+                        values_col = input("Enter column for Values: ").strip()
+                        try:
+                            pivot_df = df.pivot(index=index_col, columns=columns_col, values=values_col)
+                            print("\nPivoted DataFrame:")
+                            jarvis_speak("Showing your pivot dataabse")
+                            print(pivot_df)
+                        except Exception as e:
+                            print("Error during pivot:", e)
+
+                    elif action == "pivot_table":
+                        index_col = input("Enter column for Index: ").strip()
+                        columns_col = input("Enter column for Columns: ").strip()
+                        values_col = input("Enter column for Values: ").strip()
+                        agg_func = input("Enter aggregation function (mean, sum, max, min, count, median, std, var, len): ").strip()
+                        try:
+                            pivot_table_df = df.pivot_table(index=index_col, columns=columns_col, values=values_col, aggfunc=agg_func)
+                            print("\nPivot Table DataFrame:")
+                            jarvis_speak("Showing your pivot table database")
+                            print(pivot_table_df)
+                        except Exception as e:
+                            print("Error during pivot_table:", e)
+
+                    elif action == "describe":
+                        print("\nDataFrame Description:")
+                        jarvis_speak("Showing your describe database")
+                        print(df.describe(include='all'))
+
+                    elif action == "groupby":
+                        group_col = input('Enter column to group by: ').strip()
+                        agg_col = input('Enter column to aggregate: ').strip()
+                        func = input("Enter aggregation function (sum, mean, max, min, count, median, std, var): ").strip()
+                        try:
+                            grouped = df.groupby(group_col)[agg_col].agg(func)
+                            print("\nGrouped DataFrame:")
+                            print(grouped)
+                        except Exception as e:
+                            print("Error during groupby:", e)
+
+                    else:
+                        print(df)
                 except Exception as e:
                     print(f"{e}") 
 
@@ -1056,6 +1127,64 @@ if access_granted:
                     plt.show()
                 except Exception as e:
                     jarvis_speak("No module find")
+
+            elif "box" in user_text.lower():
+                try:
+                    data_input=input("Enter Number")
+                    data = [int(x) for x in data_input.split(",")]
+                    plt.boxplot(data)
+                    plt.show()
+                except Exception as e:
+                    jarvis_speak(f"{e}")
+
+            elif "plot" in user_text.lower():
+                try:
+                    row=int(input("Enter row"))
+                    column=int(input("Enter column"))
+                    x,y=np.meshgrid(np.arange(row,column),np.arange(row,column))
+                    u=np.sin(x)
+                    v=np.cos(y)
+                    plt.quiver(x,y,u,v)
+                    plt.show()
+                except Exception as e:
+                    jarvis_speak(f"{e}")
+
+            elif "step" in user_text.lower():
+                try:
+                    a=input("Enter pre or post or mid")
+                    d=input("Enter a number")
+                    b=[int(x) for x in d.split(",")]
+                    c=input("Enter a number")
+                    d=[int(y) for y in c.split(",")]
+                    plt.step(b,d,where=a)
+                    plt.show()
+                except Exception as e:
+                    jarvis_speak(f"{e}")
+
+            elif "stem" in user_text.lower():
+                try:
+                    a=input("Enter pre or post or mid")
+                    d=input("Enter a number")
+                    b=[int(x) for x in d.split(",")]
+                    c=input("Enter a number")
+                    d=[int(y) for y in c.split(",")]
+                    plt.stem(b,d)
+                    plt.show()
+                except Exception as e:
+                    jarvis_speak(f"{e}")
+
+            elif "stack" in user_text.lower():
+                try:
+                    d=input("Enter a number")
+                    b=[int(x) for x in d.split(",")]
+                    c=input("Enter a number")
+                    d=[int(y) for y in c.split(",")]
+                    e=input("Enter color")
+                    plt.stackplot(b,d,color=e)
+                    plt.show()
+                except Exception as e:
+                    jarvis_speak(f"{e}")
+
             elif "cos x" in user_text.lower():
                 try:
                     jarvis_speak("Enter Points For Cosn X")
