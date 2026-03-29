@@ -878,17 +878,29 @@ if access_granted:
                         c[c_name] = c_values
 
                     df = pd.DataFrame(c)
-                    jarvis_speak("Showing your database")
-                    print(df)
-                    action = input(random.choice(["\033[31mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[32mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[33mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[34mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[35mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[36mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m","\033[37mEnter what you want (savefile / melt / pivot / pivot_table/ groupby ): \033[0m"])).lower()
+                    jarvis_speak("Database Created successfully")
+                    action = input(random.choice(["\033[31mEnter what you want (savefile / dataframe / melt / pivot / search / pivot_table/ groupby ): \033[0m","\033[32mEnter what you want (savefile / dataframe / melt / pivot / pivot_table / search / groupby ): \033[0m","\033[33mEnter what you want (savefile / dataframe / melt / pivot / pivot_table / search/ groupby ): \033[0m","\033[34mEnter what you want (savefile / dataframe / melt / pivot / pivot_table / search/ groupby ): \033[0m","\033[35mEnter what you want (savefile / dataframe / melt / pivot / pivot_table / search / groupby ): \033[0m","\033[36mEnter what you want (savefile / dataframe / melt / pivot / search / pivot_table/ groupby ): \033[0m","\033[37mEnter what you want (savefile / dataframe / melt / pivot / pivot_table / search/ groupby ): \033[0m"])).lower()
                     MEMORY['ACTION']=action
                     if action == "savefile":
-                        filename = input("Enter file Name (with .csv): ")
+                        filename = input(random.choice["\033[31mEnter file Name (with .csv): \033[0m","\033[32mEnter file Name (with .csv): \033[0m","\033[33mEnter file Name (with .csv): \033[0m","\033[34mEnter file Name (with .csv): \033[0m","\033[35mEnter file Name (with .csv): \033[0m","\033[36mEnter file Name (with .csv): \033[0m","\033[37mEnter file Name (with .csv): \033[0m"])
                         df.to_csv(filename, index=False)
                         print(f"File '{filename}' saved successfully")
 
+                    elif action=="search":
+                        jarvis_speak("What you want write here")
+                        incd=input(random.choice(["\033[31mWrite here\033]0m","\033[32mWrite here\033]0m","\033[33mWrite here\033]0m","\033[34mWrite here\033]0m","\033[35mWrite here\033]0m","\033[36mWrite here\033]0m","\033[37mWrite here\033]0m",]))
+                        
+                        cols = [c.strip().upper() for c in incd.split(",")]
+                        for col in cols:
+                            if col in df.columns:
+                                print(f"\nColumn: {col}")
+                                print(df[col])
+                            else:
+                                jarvis_apeak("Searching not found")
+
                     elif action == "dataframe":
-                        print("\nDataFrame:")
+                        jarvis_speak("Showing your database\n")
+                        print(ranom.choice["\033[31mDataFrame:\033[0m","\033[32mDataFrame:\033[0m","\033[33mDataFrame:\033[0m","\033[34mDataFrame:\033[0m","\033[35mDataFrame:\033[0m","\033[36mDataFrame:\033[0m","\033[37mDataFrame:\033[0m",])
                         print(df)
 
                     elif action == "melt":
@@ -898,8 +910,8 @@ if access_granted:
                         value_vars = [v.strip() for v in value_vars]
                         var_name = input("Enter var_name: ").strip()
                         value_name = input("Enter value_name: ").strip()
-                        melted_df = pd.melt(df, id_vars=id_vars, value_vars=value_vars, var_name=var_name, value_name=value_name)
-                        print("\nMelted DataFrame:")
+                        melted_df = pd.melt(df, id_vars=id_vars, value_vars=value_vars, var_name=var_name, value_name=value_name,"\n")
+                        print(random.choice(["\033[31mMelted DataFrame:\033[0m","\033[32mMelted DataFrame:\033[0m","\033[33mMelted DataFrame:\033[0m","\033[34mMelted DataFrame:\033[0m","\033[35mMelted DataFrame:\033[0m","\033[36mMelted DataFrame:\033[0m","\033[37mMelted DataFrame:\033[0m",]))
                         jarvis_speak("Showing your melted database")
                         print(melted_df)
 
@@ -908,8 +920,8 @@ if access_granted:
                         columns_col = input("Enter column for Columns: ").strip()
                         values_col = input("Enter column for Values: ").strip()
                         try:
-                            pivot_df = df.pivot(index=index_col, columns=columns_col, values=values_col)
-                            print("\nPivoted DataFrame:")
+                            pivot_df = df.pivot(index=index_col, columns=columns_col, values=values_col,"\n")
+                            print(random.choice(["\033[31mPivoted DataFrame:\033[0m","\033[32mPivoted DataFrame:\033[0m","\033[33mPivoted DataFrame:\033[0m","\033[34mPivoted DataFrame:\033[0m","\033[35mPivoted DataFrame:\033[0m","\033[36mPivoted DataFrame:\033[0m","\033[37mPivoted DataFrame:\033[0m",]))
                             jarvis_speak("Showing your pivot dataabse")
                             print(pivot_df)
                         except Exception as e:
@@ -921,9 +933,9 @@ if access_granted:
                         values_col = input("Enter column for Values: ").strip()
                         agg_func = input("Enter aggregation function (mean, sum, max, min, count, median, std, var, len): ").strip()
                         try:
-                            pivot_table_df = df.pivot_table(index=index_col, columns=columns_col, values=values_col, aggfunc=agg_func)
-                            print("\nPivot Table DataFrame:")
-                            jarvis_speak("Showing your pivot table database")
+                            pivot_table_df = df.pivot_table(index=index_col, columns=columns_col, values=values_col, aggfunc=agg_func,"\n")
+                            print(random.choice(["\033[31mShowing your pivot table database\033[0m","\033[32mShowing your pivot table database\033[0m","\033[33mShowing your pivot table database\033[0m","\033[34mShowing your pivot table database\033[0m","\033[35mShowing your pivot table database\033[0m","\033[36mShowing your pivot table database\033[0m","\033[37mShowing your pivot table database\033[0m"]))
+                            jarvis_speak("Showing your pivot table database\n"))
                             print(pivot_table_df)
                         except Exception as e:
                             print("Error during pivot_table:", e)
