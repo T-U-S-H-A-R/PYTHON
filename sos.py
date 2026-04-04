@@ -2,182 +2,98 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import os
 import socket
 import subprocess
-
-# ---------- AUTO PORT SELECT FUNCTION ----------
-def get_free_port(start_port=8000, limit=20):
-    port = start_port
-    for _ in range(limit):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(("0.0.0.0", port))
-                return port
-            except OSError:
-                port += 1
-    raise RuntimeError("No free ports found!")
-
-PORT = get_free_port(8000)
-
-# ---------- IMAGE PATH (ANDROID SUPPORT) ----------
+from urllib.parse import parse_qs
+# ---------- CONFIGURATION ----------
+PIN = "8081"  # Aapka Security PIN
+PORT = 8000   # Aapka Port (Auto-select function use kar sakte hain)
 IMAGE_PATH = "a.jpg"
-if not os.path.exists(IMAGE_PATH):
-    IMAGE_PATH = "/storage/emulated/0/Download/a.jpg"
-
 # ---------- SCRIPT MAPPING ----------
-scripts = {
+scripts = 
+{
     "/shutdown": "shutdown.py",
-    "/restart": "restart.py",
-    "/battery": "battery.py",
     "/camera": "camera.py",
-    "/time": "time.py",
-    "/calendar": "calendar.py",
-    "/weather": "weather.py",
-
-    "/sin": "sin.py",
-    "/cos": "cos.py",
-    "/tan": "tan.py",
-    "/cot": "cot.py",
-    "/sec": "sec.py",
-    "/cosec": "cosec.py",
-
-    "/upward_parabola": "upward_parabola.py",
-    "/downward_parabola": "downward_parabola.py",
-    "/right_shift_parabola": "right_shift_parabola.py",
-    "/left_shift_parabola": "left_shift_parabola.py",
-
-    "/control": "control.py",
-    "/german": "german.py",
-    "/friday": "friday.py",
-    "/japan": "japan.py",
-    "/russia": "russia.py",
-    "/china": "china.py",
-    "/italian": "italian.py",
-    "/french": "french.py",
-    "/jarfrinova": "jarvis_friday_nova.py",
-
-    # ---------- NEW BUTTON SCRIPTS ----------
+    "/pandas": "pandas.py",
     "/youtube": "youtube.py",
-    "/google": "google.py",
-    "/w3school": "w3school.py",
-    "/chrome": "chrome.py",
-    "/pandas": "pandas.py"
+    # ... baki saare scripts yahan daal dein
 }
 
-# ---------- HANDLER ----------
-class Handler(BaseHTTPRequestHandler):
+class SecureHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        # URL se parameters nikalne ke liye (e.g. ?pin=8081)
+        query_params = parse_qs(self.path.split('?')[-1]) if '?' in self.path else {}
+        user_pin = query_params.get('pin', [None])[0]
 
-        # Run scripts
-        if self.path in scripts:
-            subprocess.Popen(["python", scripts[self.path]])
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(f"Running {scripts[self.path]}".encode())
+        # 1. Serve Image (Bina PIN ke background load ho sake)
+        if self.path == "/a.jpg":
+            if os.path.exists(IMAGE_PATH):
+                self.send_response(200)
+                self.send_header("Content-type", "image/jpeg")
+                self.end_headers()
+                with open(IMAGE_PATH, "rb") as f:
+                    self.wfile.write(f.read())
             return
 
-        # Serve image
-        if self.path == "/a.jpg" and os.path.exists(IMAGE_PATH):
+        # 2. Check Security PIN
+        if user_pin != PIN:
             self.send_response(200)
-            self.send_header("Content-type", "image/jpeg")
             self.end_headers()
-            with open(IMAGE_PATH, "rb") as f:
-                self.wfile.write(f.read())
+            self.wfile.write(b"""
+            <html>
+            <body style="background-color:#1a1a1a; color:white; text-align:center; font-family:Arial; padding-top:100px;">
+                <h1>ACCESS DENIED</h1>
+                <p>Please enter Security PIN to access JARVIS:</p>
+                <form method="GET">
+                    <input type="password" name="pin" style="padding:10px; border-radius:5px; border:none;">
+                    <button type="submit" style="padding:10px; background:cyan; border:none; border-radius:5px;">LOGIN</button>
+                </form>
+            </body>
+            </html>
+            """)
             return
 
-        # ---------- UI ----------
+        # 3. Run Scripts (Agar PIN sahi hai)
+        clean_path = self.path.split('?')[0]
+        if clean_path in scripts:
+            subprocess.Popen(["python", scripts[clean_path]])
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(f"Executed {scripts[clean_path]} successfully!".encode())
+            return
+
+        # 4. Serve Secure UI
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"""
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS Mobile Panel</title>
-<style>
-body {
-    background-image: url('/a.jpg');
-    background-size: cover;
-    margin: 0;
-    text-align: center;
-    color: white;
-    font-family: Arial;
-}
-h1 {
-    font-size: 5vw;
-    text-shadow: 2px 2px 5px black;
-}
-.grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    padding: 10px;
-}
-button {
-    padding: 10px;
-    font-size: 3vw;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-button:hover {
-    transform: scale(1.05);
-}
-</style>
-</head>
-<body>
+        ui_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>JARVIS Secure Panel</title>
+            <style>
+                body {{ background-image: url('/a.jpg'); background-size: cover; color: white; text-align: center; }}
+                .grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; }}
+                button {{ padding: 15px; background: rgba(0,255,255,0.2); color: white; border: 1px solid cyan; border-radius: 8px; }}
+            </style>
+        </head>
+        <body>
+            <h1>JARVIS SECURE HUB</h1>
+            <div class="grid">
+                <button onclick="go('/shutdown')">Shutdown</button>
+                <button onclick="go('/camera')">Camera</button>
+                <button onclick="go('/pandas')">Pandas</button>
+                <button onclick="go('/youtube')">YouTube</button>
+            </div>
+            <script>
+                function go(path){{
+                    // PIN ko har request ke saath bhejte rehna zaroori hai
+                    window.location.href = path + "?pin={PIN}";
+                }}
+            </script>
+        </body>
+        </html>
+        """
+        self.wfile.write(ui_html.encode())
 
-<h1>JARVIS CONTROL</h1>
-
-<div class="grid">
-<button onclick="go('/shutdown')">Shutdown</button>
-<button onclick="go('/restart')">Restart</button>
-<button onclick="go('/battery')">Battery</button>
-<button onclick="go('/camera')">Camera</button>
-<button onclick="go('/time')">Time</button>
-<button onclick="go('/calendar')">Calendar</button>
-<button onclick="go('/weather')">Weather</button>
-
-<button onclick="go('/sin')">Sin</button>
-<button onclick="go('/cos')">Cos</button>
-<button onclick="go('/tan')">Tan</button>
-<button onclick="go('/cot')">Cot</button>
-<button onclick="go('/sec')">Sec</button>
-<button onclick="go('/cosec')">Cosec</button>
-
-<button onclick="go('/upward_parabola')">Up</button>
-<button onclick="go('/downward_parabola')">Down</button>
-<button onclick="go('/right_shift_parabola')">Right</button>
-<button onclick="go('/left_shift_parabola')">Left</button>
-
-<button onclick="go('/control')">All</button>
-<button onclick="go('/german')">German</button>
-<button onclick="go('/friday')">Friday</button>
-<button onclick="go('/japan')">Japan</button>
-<button onclick="go('/russia')">Russia</button>
-<button onclick="go('/china')">China</button>
-<button onclick="go('/italian')">Italian</button>
-<button onclick="go('/french')">French</button>
-<button onclick="go('/jarfrinova')">JFN</button>
-
-<!-- ---------- NEW BUTTONS ---------- -->
-<button onclick="go('/youtube')">YouTube</button>
-<button onclick="go('/google')">Google</button>
-<button onclick="go('/w3school')">W3School</button>
-<button onclick="go('/chrome')">Chrome</button>
-<button onclick="go('/pandas')">Pandas</button>
-
-</div>
-
-<script>
-function go(path){
-    window.location.href = path;
-}
-</script>
-
-</body>
-</html>
-""")
-
-# ---------- RUN SERVER ----------
-ip = "127.0.0.1"
-print(f"\nServer running on: http://{ip}:{PORT}\n")
-HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+# RUN SERVER
+print(f"Secure Server started on Port {PORT}...")
+HTTPServer(("0.0.0.0", PORT), SecureHandler).serve_forever()
